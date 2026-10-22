@@ -14,6 +14,7 @@ const blog = defineCollection({
     cover: z.string().optional(),
     coverAlt: z.string().optional(),
     featured: z.boolean().default(false),
+    pinned: z.boolean().default(false),
     draft: z.boolean().default(false),
     sourceUrl: z.url().optional(),
     sourceCategory: z.string().optional(),

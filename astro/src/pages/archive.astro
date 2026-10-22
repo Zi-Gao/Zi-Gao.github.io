@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import { getPosts, postUrl, formatDate } from '../lib/posts';
-const posts = await getPosts();
+const posts = await getPosts({ pinnedFirst: false });
 const years = [...new Set(posts.map((post) => post.data.date.getUTCFullYear()))];
 ---
 <BaseLayout title="文章归档">

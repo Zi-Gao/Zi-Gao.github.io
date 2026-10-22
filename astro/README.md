@@ -55,11 +55,12 @@ category: 笔记
 tags: [note]
 cover: /images/type-rhythm.svg
 featured: false
+pinned: false
 draft: false
 ---
 ```
 
-`category` 可选「题解」「笔记」「游记」。`cover` 可选，图片放在 `public/images/`。最新的 `featured: true` 文章显示在首页精选。`draft: true` 的文章不会进入页面、搜索、RSS、站点地图或归档。
+`category` 可选「题解」「笔记」「游记」。`cover` 可选，图片放在 `public/images/`。`pinned: true` 的文章会在列表中置顶，配合 `featured: true` 可显示在首页精选。归档和 RSS 仍按实际日期排列。`draft: true` 的文章不会进入页面、搜索、RSS、站点地图或归档。
 
 正文支持 GFM、代码高亮、行内及块级数学公式（本地 KaTeX 字体）、自动目录、阅读进度、阅读时长及代码复制。
 

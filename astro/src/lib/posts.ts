@@ -3,9 +3,10 @@ import { site } from '../site.config';
 
 export type Post = CollectionEntry<'blog'>;
 
-export async function getPosts() {
+export async function getPosts({ pinnedFirst = true } = {}) {
   return (await getCollection('blog', ({ data }) => !data.draft))
-    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+    .sort((a, b) => (pinnedFirst ? Number(b.data.pinned) - Number(a.data.pinned) : 0)
+      || b.data.date.getTime() - a.data.date.getTime());
 }
 
 export function postUrl(post: Post) {
