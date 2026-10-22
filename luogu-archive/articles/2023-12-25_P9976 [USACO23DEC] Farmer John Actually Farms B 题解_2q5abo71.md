@@ -1,0 +1,90 @@
+> 题意：
+>
+> 有 $n$ 株植物，初始高度为 $h_i$，并且每天长 $a_i$。现在给了一些限制，问存不存在一天使得满足每个限制，给出最小解，其中每个限制是要第 $i$ 株植物比其他 $t_i$ 株植物高。
+>
+> $n,m\leq 2\cdot 10^5$ 以及 $1\leq h_i,c_i\leq 10^9$ 并且 $t_i$ 互不相同。
+
+发现这个限制就是再说按高度排序后第 $i$ 株植物排在第 $t_i$ 位，那么不妨先把这个按高度排序后的植物数组处理出来，现在就只需要考虑相邻两个植物的高度关系即可，设符合条件在第 $x$ 天，设 $i$ 和 $j$ 相邻，要求 $i$ 比 $j$ 高：
+
+1. $h_i\geq h_j$ 要求 $h_i+a_ix\gt h_j+a_jx$ 也就是 $x\gt \frac{h_i-h_j}{a_j-a_i}$。
+2. $h_i\leq h_j$ 同理可得 $x\lt \frac{h_j-h_i}{a_i-a_j}$。
+
+还有一些边界情况细节见代码。那么可以得到 $x$ 的上界和下界，若有解就是下界小于等于上界，输出下界即可。
+
+我的实现有点垃圾。
+
+```cpp
+#include<bits/stdc++.h>
+#define int long long
+#define ONLINE_JUDGE
+#define INPUT_DATA_TYPE int
+#define OUTPUT_DATA_TYPE int
+INPUT_DATA_TYPE read(){register INPUT_DATA_TYPE x=0;register char f=0,c=getchar();while(c<'0'||'9'<c)f=(c=='-'),c=getchar();while('0'<=c&&c<='9')x=(x<<3)+(x<<1)+(c&15),c=getchar();return f?-x:x;}void print(OUTPUT_DATA_TYPE x){if(x<0)x=-x,putchar('-');if(x>9)print(x/10);putchar(x%10^48);return;}
+
+int h[200010],a[200010],p[200010],t[200010];
+
+long long abss(long long x){return x<0?-x:x;}
+
+long long floor_(long long a,long long b);
+
+long long ceil_(long long a,long long b){
+    if(a>=0&&b>=0) return (a+b-1)/b;
+    else if(a<0&&b<0) return ((-a)+(-b)-1)/(-b);
+    else return -floor_(abss(a),abss(b));
+}
+
+long long floor_(long long a,long long b){
+    if(a>=0&&b>=0) return a/b;
+    else if(a<0&&b<0) return (-a)/(-b);
+    else return -ceil_(abss(a),abss(b));
+}
+
+void solve(){
+    register int i,l=0,r=0x3f3f3f3f3f3f3f3fll,j;
+    int n=read();
+    for(i=0;i<n;++i) h[i]=read();
+    for(i=0;i<n;++i) a[i]=read();
+    for(i=0;i<n;++i) p[t[i]=read()]=i;
+    for(i=0;i<n;++i){
+        if(t[i]==n-1) continue;
+        j=p[t[i]+1];
+        if(h[i]>h[j]){
+            if(a[i]>=a[j]) continue;
+            else{
+                if((h[i]-h[j])%(a[j]-a[i])) r=std::min(r,floor_(h[i]-h[j],a[j]-a[i]));
+                else r=std::min(r,floor_(h[i]-h[j],a[j]-a[i])-1);
+            }
+        }else if(h[i]<h[j]){
+            if(a[i]<=a[j]){
+                r=std::min(r,-1ll);
+                continue;
+            }else{
+                if((h[j]-h[i])%(a[i]-a[j])) l=std::max(l,ceil_(h[i]-h[j],a[j]-a[i]));
+                else l=std::max(l,ceil_(h[i]-h[j],a[j]-a[i])+1);
+            }
+        }else{
+            if(a[i]>a[j]) l=std::max(l,1ll);
+            else r=std::min(r,-1ll);
+        }
+    }
+    if(l<=r) print(l);
+    else print(-1);
+    return putchar('\n'),void();
+}
+
+signed main(){
+    #ifndef ONLINE_JUDGE
+    freopen("name.in", "r", stdin);
+    freopen("name.out", "w", stdout);
+    #endif
+
+    int T=read();
+    while(T--) solve();
+
+    #ifndef ONLINE_JUDGE
+    fclose(stdin);
+    fclose(stdout);
+    #endif
+    return 0;
+}
+```

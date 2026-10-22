@@ -1,0 +1,16 @@
+---
+import type { Post } from '../lib/posts';
+import { postUrl, formatDate, readingTime } from '../lib/posts';
+import Icon from './Icon.astro';
+interface Props { post: Post; }
+const { post } = Astro.props;
+---
+<article class="post-card" data-post-card data-category={post.data.category}>
+  {post.data.cover && <a class="post-image" href={postUrl(post)} tabindex="-1" aria-hidden="true"><img src={post.data.cover} alt="" loading="lazy" width="600" height="400" /><span class="image-arrow"><Icon name="arrow-up" size={20} /></span></a>}
+  <div class="post-card-body">
+    <div class="post-meta"><span class={`category-dot category-${post.data.category}`}></span><a href={`/blog/?category=${encodeURIComponent(post.data.category)}`}>{post.data.category}</a><span class="meta-separator">/</span><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time></div>
+    <h3><a href={postUrl(post)}>{post.data.title}</a></h3>
+    <p class="post-description">{post.data.description}</p>
+    <div class="post-bottom"><div class="post-tags">{post.data.tags.slice(0, 2).map((tag) => <a href={`/tags/${encodeURIComponent(tag)}/`}># {tag}</a>)}</div><span class="reading-time">{readingTime(post.body)} 分钟阅读</span></div>
+  </div>
+</article>

@@ -1,0 +1,145 @@
+---
+title: "P5295 [北京省选集训2019] 图的难题 题解"
+slug: "isaounr1"
+description: "前言 退火过的，要学正解的请跳过这篇。UOJ 上面的数据本做法还没卡过去，UOJ 数据太强了。 正文 0x00 分析题目 首先需要一个结论，对于一个图能成功染色的充分必要条件是，对于其每个诱导子图 l…"
+date: "2023-12-28T02:49:45.000Z"
+category: "题解"
+tags: ["solution"]
+cover: "/images/digital-home.svg"
+coverAlt: "题解文章的简约插画封面"
+featured: false
+draft: false
+sourceUrl: "https://www.luogu.com.cn/article/isaounr1"
+sourceCategory: "题解"
+sourceSha256: "5c0ff7895684da749784f8843c1d0eb122d4d8d9eb45a0c1e8ad1c6c1f7b4a2f"
+---
+## 前言
+
+退火过的，要学正解的请跳过这篇。UOJ 上面的数据本做法还没卡过去，UOJ 数据太强了。
+
+## 正文
+
+### 0x00 分析题目
+
+首先需要一个结论，对于一个图能成功染色的充分必要条件是，对于其每个诱导子图 $\left(V^{\prime},E^{\prime}\right)$ 都有 $\left|E^{\prime}\right|-2\left|V^{\prime}\right|\leq-2$。下面给出一则不太严谨的简要证明，可以感性理解一下先，参考了[这篇题解](https://www.luogu.com.cn/blog/kamino/solution-p5295)：
+
+> 若图中刚好有 $2\left|V\right|-2$ 条边，那么可以将这个图拆成两个生成树，一颗染白，一颗染黑。此时再加入一条边一定会使某个生成树变成基环树，所以再多边就无解了。
+
+详细证明请看 UOJ 上的[这篇题解](https://jiry-2.blog.uoj.ac/blog/1115)，非常严谨。
+
+### 0x01 解决问题
+
+有了这个结论，尝试考虑解决问题，发现这个定义和最大密度子图很像啊，例题是 [UVA1389 Hard Life](https://www.luogu.com.cn/problem/UVA1389)，对于这题，若能找到 $\left|E^{\prime}\right|-2\left|V^{\prime}\right|$ 的最大值即可解决本题，刚好我用模拟退火解决的，所以这题我也尝试使用模拟退火解决。
+
+退火每次寻找一个子图定义其能量为 $\left|E^{\prime}\right|-2\left|V^{\prime}\right|$，并记录 $\left|E^{\prime}\right|$ 和 $\left|V^{\prime}\right|$，每次从上一个子图改变一个点是否在子图中的状态，然后枚举出边维护 $\left|E^{\prime}\right|$ 和 $\left|V^{\prime}\right|$ 即可。
+
+直接退火并不能过。进行调参，调了几页发现只对 SA 的参数更改很难获得一个好的解，那么考虑多次模拟退火，这样分数会高一点，但是还是不能过。而且时间卡得很紧。不妨降低每次退火的运行时间，跑重复很多次模拟退火，会发现这样能跑出很好的答案，跑 $200$ 次退火就能过了。
+
+为什么能对？我想跑多次模拟退火类似一个生日悖论的过程，就算每次成功概率很低，跑 $200$ 次的成功概率就会很高。
+
+### 0x02 代码实现
+
+参数啥的看代码就好了，你不想卡了可以直接照着我的种子填，一个小优化是当已经判断无解时可以直接退出过程。
+
+```cpp
+const int seed=2361235;
+
+#include<bits/stdc++.h>
+#define INPUT_DATA_TYPE int
+#define OUTPUT_DATA_TYPE int
+INPUT_DATA_TYPE read(){register INPUT_DATA_TYPE x=0;register char f=0,c=getchar();while(c<'0'||'9'<c)f=(c=='-'),c=getchar();while('0'<=c&&c<='9')x=(x<<3)+(x<<1)+(c&15),c=getchar();return f?-x:x;}void print(OUTPUT_DATA_TYPE x){register char s[20];register int i=0;if(x<0){x=-x;putchar('-');}if(x==0){putchar('0');return;}while(x){s[i++]=x%10;x/=10;}while(i){putchar(s[--i]+'0');}return;}
+
+std::vector<int> e[520];
+std::bitset<520> now;
+
+void addEdge(int u,int v){
+    e[u].push_back(v);
+    e[v].push_back(u);
+    return;
+}
+
+const double cold=0.99,stop_t=1e-10,start_t=1e10;
+
+int calc(int u,int &cntE,int &cntV){
+    if(now[u]){
+        --cntV;
+        if(!cntV) return -0x3f3f3f3f;
+        for(auto v:e[u])
+            cntE-=now[v];
+    }else{
+        ++cntV;
+        for(auto v:e[u])
+            cntE+=now[v];
+    }
+    return cntE-cntV*2;
+}
+
+bool solve(){
+    register int i,u,v,cntE,cntV,newE,newV,ansval,nowans,ttt=200;
+	double t,delta;
+    int n=read();
+    int m=read();
+
+    for(i=1;i<=m;++i){
+        u=read();
+        v=read();
+        addEdge(u,v);
+    }
+
+    while(ttt--){
+        t=start_t,cntE=cntV=0;
+        for(i=1;i<=n;++i) now[i]=rand()&1;
+        // cntE=m,cntV=n;
+        for(u=1;u<=n;++u)
+            if(now[u]){
+                ++cntV;
+                for(auto v:e[u])
+                    cntE+=now[v];
+            }
+        cntE/=2;
+        if(cntV==0) cntV=1,now[1]=1;
+        ansval=cntE-cntV*2;
+
+        while(t>stop_t){
+            newE=cntE,newV=cntV;
+            u=rand()%n+1;
+            delta=(nowans=calc(u,newE,newV))-ansval;
+            if(nowans==-0x3f3f3f3f) continue;
+            if(delta>0)
+                (now[u]=now[u]^1),ansval=nowans,cntE=newE,cntV=newV;
+            else if(std::exp(delta/t)*RAND_MAX>rand())
+                (now[u]=now[u]^1),cntE=newE,cntV=newV;
+            t*=cold;
+
+            if(ansval>-2) break;
+        }
+        if(ansval>-2){
+            puts("No");
+            goto loop;
+        }
+    }
+
+    puts("Yes");
+
+    loop:for(i=1;i<=n;++i) e[i].clear();
+
+    return false;
+}
+
+int main(){
+	#ifndef ONLINE_JUDGE
+	freopen("name.in", "r", stdin);
+	freopen("name.out", "w", stdout);
+	#endif
+
+    srand(seed);
+    int T=read();
+    while(T--) solve();
+
+	#ifndef ONLINE_JUDGE
+	fclose(stdin);
+	fclose(stdout);
+	#endif
+    return 0;
+}
+```

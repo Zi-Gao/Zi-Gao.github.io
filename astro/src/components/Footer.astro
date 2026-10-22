@@ -1,0 +1,12 @@
+---
+import Icon from './Icon.astro';
+import { site } from '../site.config';
+---
+<footer class="site-footer container">
+  <div class="footer-top">
+    <a class="footer-brand" href="/">{site.title}<span>.</span></a>
+    <p>{site.tagline}</p>
+    <a href="/rss.xml" class="footer-subscribe"><Icon name="rss" size={15} /> 通过 RSS 订阅 <Icon name="arrow-up" size={14} /></a>
+  </div>
+  <div class="footer-bottom"><p>© {new Date().getFullYear()} {site.title} · 保持好奇，慢慢生长。</p><p>Crafted with care <span class="footer-dot">·</span> Built with <a href="https://astro.build" target="_blank" rel="noreferrer">Astro <Icon name="arrow-up" size={11} /></a></p></div>
+</footer>

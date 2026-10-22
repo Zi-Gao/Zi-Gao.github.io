@@ -1,0 +1,131 @@
+## 前言
+
+题解区有一些题解做法大体上每问题但是具体细节处理不到位，实际上时间复杂度并不能保证，所以这里提供一个更为清晰的题解。
+
+## 正文
+
+### 0x00 分析问题
+
+由于题目的约束，在这个最短路中肯定经过了 $1,2,\cdots,p-1,p$ 一系列点，可以把问题划分成为 $p$ 个部分：
+
+第一个部分：从 $(1,1)$ 到权值为 $1$ 的格子。
+
+第二个部分：从权值为 $1$ 的格子到权值为 $2$ 的格子。
+
+$\cdots$
+
+第 $p$ 个部分：从权值为 $p-1$ 的格子到权值为 $p$ 的格子。
+
+然后找到一个最短路。
+
+### 0x01 解决问题
+
+自然想到建立一个分层图，两层图之间的转移就是 $p$ 个阶段中的每一个阶段。
+
+这里有两种（两层图之间）转移方式，设整个图大小为 $n\times m$ 两层的节点数分别为 $a,b$：
+
+1. 直接两两计算转移，时间复杂度 $\mathcal{O}\left(ab\right)$。
+
+2. 跑一个最短路，但是需要一个排序不然时间复杂度不稳定，$\mathcal{O}\left(a\log a + n+m\right)$，这里可以近似为 $\mathcal{O}\left(n+m\right)$。
+
+实际上单纯用一种方法总会被卡 T。考虑进行缝合，当 $\mathcal{O}\left(ab\right)<\mathcal{O}\left(n+m\right)$ 时用第一种转移方式；否则用第二种。
+
+这样可以保证时间复杂度不高于 $\mathcal{O}\left(\left(nm\right)^{1.5}\right)$ 具体证明可以看其他题解已经很清楚里。
+
+这里要注意的点就是进行最短路可以使用类似 BFS 的技巧，不需要 Dijkstra，但是一定要排序一下，不然无法保证时间复杂度，当然这个题没有卡。
+
+### 0x02 代码实现
+
+AC CODE
+
+```cpp
+#include<cstdio>
+#include<vector>
+#include<algorithm>
+#include<queue>
+// #define ONLINE_JUDGE
+#define INPUT_DATA_TYPE int
+#define OUTPUT_DATA_TYPE int
+INPUT_DATA_TYPE read(){register INPUT_DATA_TYPE x=0;register char f=0,c=getchar();while(c<'0'||'9'<c)f=(c=='-'),c=getchar();while('0'<=c&&c<='9')x=(x<<3)+(x<<1)+(c&15),c=getchar();return f?-x:x;}void print(OUTPUT_DATA_TYPE x){register char s[20];register int i=0;if(x<0){x=-x;putchar('-');}if(x==0){putchar('0');return;}while(x){s[i++]=x%10;x/=10;}while(i){putchar(s[--i]+'0');}return;}
+
+struct NODE{
+    int x,y,w;
+    bool operator < (const NODE another) const{
+        return w>another.w;
+    }
+};
+
+std::vector<NODE> e[310*310],s;
+std::queue<NODE> Q;
+int dis[310][310],n,m;
+
+void bfs(){
+    register int i,j;
+    register NODE u;
+    for(i=0;i<n;++i)
+        for(j=0;j<m;++j) dis[i][j]=0x3f3f3f3f;
+    std::priority_queue<NODE> Q;
+    for(auto u:s) Q.push(u);
+    while(!Q.empty()){
+        u=Q.top();
+        Q.pop();
+        if(dis[u.x][u.y]<=u.w||(u.x<0)||u.x>=n||(u.y<0)||u.y>=m) continue;
+        dis[u.x][u.y]=u.w;
+        Q.push((NODE){u.x+1,u.y,u.w+1});
+        Q.push((NODE){u.x-1,u.y,u.w+1});
+        Q.push((NODE){u.x,u.y+1,u.w+1});
+        Q.push((NODE){u.x,u.y-1,u.w+1});
+    }
+    return;
+}
+
+int abs(int x){return x<0?-x:x;}
+
+int getDis(int x1,int y1,int x2,int y2){
+    return abs(x1-x2)+abs(y1-y2);
+}
+
+int main(){
+	#ifndef ONLINE_JUDGE
+	freopen("name.in", "r", stdin);
+	freopen("name.out", "w", stdout);
+	#endif
+
+    register int i,j,val,ans=0x3f3f3f3f;
+    n=read();
+    m=read();
+    int p=read();
+    for(i=0;i<n;++i)
+        for(j=0;j<m;++j){
+            val=read();
+            e[val].push_back((NODE){i,j,val==1?getDis(0,0,i,j):0x3f3f3f3f});
+        }
+
+    for(val=2;val<=p;++val){
+        if(e[val-1].size()*e[val].size()<=n*m*10)
+            for(auto u:e[val-1])
+                for(auto &v:e[val])
+                    v.w=std::min(v.w,getDis(u.x,u.y,v.x,v.y)+u.w);
+        else{
+            s.clear();
+            for(auto u:e[val-1]) s.push_back(u);
+            bfs();
+            for(auto &u:e[val]) u.w=dis[u.x][u.y];
+        }
+    }
+
+    for(auto u:e[p]) ans=std::min(ans,u.w);
+
+    print(ans);
+
+	#ifndef ONLINE_JUDGE
+	fclose(stdin);
+	fclose(stdout);
+	#endif
+    return 0;
+}
+```
+
+## 总结
+
+根号分治的题，在思考过程中通常都会出现两种解法，一般我们只会执着于一种解法死磕和优化，但是不妨想一想这两种解法的优劣情况，并且最劣是否在同一种情况呢。若不是，那么大胆猜想吧！把他们“缝”在一起就好了！

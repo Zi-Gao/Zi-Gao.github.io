@@ -1,0 +1,148 @@
+---
+title: "P9584 城市 题解"
+slug: "ae910hqg"
+description: "前言 感觉一些题解写的太麻烦了，这里提供一种更加简洁的做法。并且阅读本文请准备好草稿纸，树画出来一面大脑内存不够。 一些约定： 1. 本文拟定 1 号节点为根。 2. sizeu 表示以 u 节点为子…"
+date: "2023-08-27T04:01:38.000Z"
+category: "题解"
+tags: ["solution"]
+cover: "/images/digital-home.svg"
+coverAlt: "题解文章的简约插画封面"
+featured: false
+draft: false
+sourceUrl: "https://www.luogu.com.cn/article/ae910hqg"
+sourceCategory: "题解"
+sourceSha256: "e90301b7c64f46b780059c9d4e3d7a602175401b16302b3e8108d6faad39e55f"
+---
+## 前言
+
+感觉一些题解写的太麻烦了，这里提供一种更加简洁的做法。并且阅读本文请准备好草稿纸，树画出来一面大脑内存不够。
+
+一些约定：
+
+1. 本文拟定 $1$ 号节点为根。
+
+2. $size_u$ 表示以 $u$ 节点为子树的大小。
+
+3. $son_u$ 表示 $u$ 的儿子。
+
+4. $par_u$ 表示 $u$ 的父亲。
+
+5. $u\rightarrow v$ 表示 $u$ 到 $v$ 节点边。
+
+6. $w_{u\rightarrow v}$ 表示 $u$ 到 $v$ 节点边权。
+
+## 正文
+
+### 0x00 分析题目
+
+相当于本文要求在添加一条边之后树上任意两点距离和，并且询问独立。
+
+这样的题首先考虑计算出整个树本身不考虑其他点的答案贡献，然后每次询问时计算这个修改所造成的贡献即可。
+
+### 0x01 计算推导
+
+令 $f_u$ 表示 $u$ 子树内到 $u$ 这个点的答案贡献；$g_u$ 表示 $u$ 子树外内到 $v$ 这个点的答案贡献。
+
+显然整个树的贡献
+
+$$baseans=\sum_{u=1}^{n}f_u+g_u$$
+
+每次询问的答案可以拆成，树原本的贡献和原本的点到加入点的贡，对于第二部分可以考虑加入的这条边的贡献和其他点到 $k$ 的贡献，这样可以快速计算。
+
+$$ans=baseans+2\times\left(f_k+g_k+n\times w\right)$$
+
+接下来考虑如何计算 $f_u$ 和 $g_u$。
+
+对于 $f_u$ 显然拆成其儿子的贡献 $f_v$ 和 $w_{u\rightarrow v}$ 的贡献。
+
+$$f_u=\sum_{v\in son_u} f_v+w_{u\rightarrow v}\times size_v$$
+
+对于 $g_u$ 可以考虑拆成 $g_{par_u}$ 和 $par_u$ 子树内除开 $u$ 子树的贡献再加上 $par_u\rightarrow u$ 边的贡献。发现第二部分就是 $f_{par_u}$ 减去计算 $u$ 时的贡献。那么：
+
+$$g_u=g_{par_u}+f_{par_u}-w_{par_u\rightarrow u}\times size_u$$ 
+
+### 0x02 代码实现
+
+计算 $f$ 从下往上递推 DFS，计算 $g$ 从上往下递推 DFS 即可。
+
+AC CODE
+
+```cpp
+#include<bits/stdc++.h>
+// #define ONLINE_JUDGE
+#define INPUT_DATA_TYPE int
+#define OUTPUT_DATA_TYPE int
+INPUT_DATA_TYPE read(){register INPUT_DATA_TYPE x=0;register char f=0,c=getchar();while(c<'0'||'9'<c)f=(c=='-'),c=getchar();while('0'<=c&&c<='9')x=(x<<3)+(x<<1)+(c&15),c=getchar();return f?-x:x;}void print(OUTPUT_DATA_TYPE x){register char s[20];register int i=0;if(x<0){x=-x;putchar('-');}if(x==0){putchar('0');return;}while(x){s[i++]=x%10;x/=10;}while(i){putchar(s[--i]+'0');}return;}
+
+struct EDGE{
+    int to;
+    long long w;
+};
+
+std::vector<EDGE> e[200010];
+
+const long long mod=998244353;
+long long f[200010],g[200010],siz[200010],n,baseans;
+
+void addEdge(int u,int v,int w){
+    e[u].push_back((EDGE){v,w});
+    return;
+}
+
+void dfs(int u,int p){
+    int v;
+    siz[u]=1;
+    for(auto edge:e[u])
+        if((v=edge.to)!=p){
+            dfs(v,u);
+            f[u]=(f[u]+edge.w*siz[v]+f[v])%mod;
+            siz[u]+=siz[v];
+        }
+    return;
+}
+
+void dfs2(int u,int p,long long w){
+    if(u!=1)
+        g[u]=(f[p]-(f[u]+w*siz[u])%mod+(n-siz[u])*w%mod+g[p]+mod)%mod;
+    baseans=(baseans+g[u]+f[u])%mod;
+    int v;
+    for(auto edge:e[u])
+        if((v=edge.to)!=p)
+            dfs2(v,u,edge.w);
+    return;
+}
+
+signed main(){
+	#ifndef ONLINE_JUDGE
+	freopen("name.in", "r", stdin);
+	freopen("name.out", "w", stdout);
+	#endif
+
+    register int i,u,v,w;
+    n=read();
+    int q=read();
+    
+    for(i=1;i<n;++i){
+        u=read();
+        v=read();
+        w=read();
+        addEdge(u,v,w);
+        addEdge(v,u,w);
+    }
+
+    dfs(1,1);
+    dfs2(1,1,0);
+
+    for(i=0;i<q;++i){
+        u=read();
+        w=read();
+        print((baseans+((g[u]+f[u]+n*w)<<1))%mod);puts("");
+    }
+
+	#ifndef ONLINE_JUDGE
+	fclose(stdin);
+	fclose(stdout);
+	#endif
+    return 0;
+}
+```

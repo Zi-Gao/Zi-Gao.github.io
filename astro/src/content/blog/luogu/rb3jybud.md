@@ -1,0 +1,121 @@
+---
+title: "P14309 【MX-S8-T2】配对 题解"
+slug: "rb3jybud"
+description: "出题人题解，欢迎观看视频题解，打不开的把链接 先把树变成有根树之后，考虑从下往上考虑，容易发现对于一个节点 u，其子树最多剩余一个点会继续向上匹配，因为如果有多点没匹配，都会在 u 尽量匹配。 那么 …"
+date: "2025-10-26T23:23:44.000Z"
+category: "题解"
+tags: ["solution"]
+cover: "/images/small-tools.svg"
+coverAlt: "题解文章的简约插画封面"
+featured: false
+draft: false
+sourceUrl: "https://www.luogu.com.cn/article/rb3jybud"
+sourceCategory: "题解"
+sourceSha256: "efa82345867e412179c7b4e2238b54b67cba01ae9d81ad557bca5c2a04994358"
+---
+出题人题解，[欢迎观看视频题解](https://www.bilibili.com/video/BV1hhsfzYEdc/)，打不开的把链接`https://www.bilibili.com/video/BV1hhsfzYEdc/`复制下来打开。
+
+
+先把树变成有根树之后，考虑从下往上考虑，容易发现对于一个节点 $u$，其子树最多剩余一个点会继续向上匹配，因为如果有多点没匹配，都会在 $u$ 尽量匹配。
+
+那么 $u$ 到其父亲 $p$ 的边 $w$，贡献就是：$w\left(\sum_{v\in \text{tree(u)}} c_v \bmod 2\right)$，为了方便记 $f_u=\sum_{v\in \text{tree(u)}}c_v \bmod 2$。
+
+**提示 1**：假设 $\sum c_u \equiv 0 \pmod 2$ 怎么做。
+
+交换 $c_u=c_v=0,c_u=c_v=1$ 都没用，那么这里钦定 $c_u=1,c_v=0$，相当于是把一个 $1$ 移动到一个 $0$ 上去了。
+
+影响的 $f$ 实际上就是 $u$ 到 $v$ 路径上的 $f$，并且全部取反，可以使用寻找树最长链等方法计算。
+
+**提示 2**：
+假设 $\sum c_u \equiv 1 \pmod 2$ 怎么做。
+
+把未知的问题转化为已知的问题，这里就是要删去一个点，其实就相当于把这个点移动到了根的父亲上去（假设有这么一个点），也就是让 $f$ 从 $u$ 到根路径上全部取反。
+
+发现 $u$ 子树对上面的影响只有几种不同类型：
+
+1. 交换操作的影响：
+   1. 子树内没有要移动走的点，也没有移动了点。
+   2. 子树内有一个 $0$ 要移动走。
+   3. 子树内有一个 $1$ 要移动走。
+   4. 子树内已经有了一个 $1$ 移动到了 $0$ 了。
+2. 删去点的影响：
+   1. 子树内没删去点。
+
+   2. 子树内删掉了一个 $1$。
+
+于是设计 $dp_{u,a,b}$ 表示 $u$ 子树交换操作的类型是 $a$，删除操作的类型是 $b$，一共 $8$ 个状态。
+
+$\mathcal{O}(n)$ 即可完成计算。
+
+
+都说难写，但其实状态设计好一点不难写，几个转移全部都是加法。
+
+```cpp
+
+#include<bits/stdc++.h>
+
+// #define NOBUG
+// #define ONLINE_JUDGE
+#define il inline __attribute((always_inline)) 
+
+#ifdef NOBUG
+#define dbg(...) fprintf (stderr, __VA_ARGS__)
+#else
+#define dbg(...) void()
+#endif
+
+using u32=unsigned int;
+using i64=long long;
+using u64=unsigned long long;
+
+int c[1000010];
+std::vector<std::array<int,2>> e[1000010];
+
+const i64 INF=0x3f3f3f3f3f3fll;
+
+using DP=std::array<std::array<i64,4>,2>;
+DP dzero;
+
+DP dfs(int u,int p){
+    DP dpu=dzero;
+    dpu[0][c[u]+1]=0;
+    dpu[0][0]=dpu[1][0]=0;
+    int du,dv,mu,mv;
+    for(auto [v,w]:e[u]) if(v!=p){
+        DP dpv=dfs(v,u),dpn=dzero;
+        c[u]^=c[v];
+        if(!c[v]) w*=-1;
+        for(du=0;du<2;++du) for(dv=0;du+dv<2;++dv) for(mu=0;mu<4;++mu) for(mv=0;mu+mv<4;++mv) if(mu!=mv||!mu||!mv)
+            dpn[du+dv][mu+mv]=std::min(dpu[du][mu]+dpv[dv][mv]+(dv?-1:1)*((mv&&mv<3)?-1:1)*w,dpn[du+dv][mu+mv]);
+        dpu=dpn;
+    }
+    return dpu;
+}
+
+int main(){
+	#ifndef ONLINE_JUDGE
+	freopen("name.in", "r", stdin);
+	freopen("name.out", "w", stdout);
+	#endif
+
+    memset(&dzero,INF,sizeof(dzero));
+
+    int i,u,v,w,cc=0;
+    i64 sum=0;
+    int n;
+    scanf("%d",&n);
+    for(i=1;i<=n;++i) scanf("%d",&c[i]),cc^=c[i];
+
+    for(i=1;i<n;++i){
+        scanf("%d%d%d",&u,&v,&w);
+        sum+=w;
+        e[u].push_back({v,w});
+        e[v].push_back({u,w});
+    }
+
+    DP res=dfs(1,0);
+    printf("%lld",(std::min(res[cc][0],res[cc][3])+sum)/2);
+
+    return 0;
+}
+```

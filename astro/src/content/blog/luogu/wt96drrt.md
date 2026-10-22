@@ -1,0 +1,65 @@
+---
+title: "CF1902F Trees and XOR Queries Again 题解"
+slug: "wt96drrt"
+description: "前言 本题是简单的、一眼的、普通的、显然的。 正文 0x00 分析题目 给定一颗带点权无根树，每次询问给定两个点 u,v 和参数 k，回答是否有一个 uleftarrow v 简单路径的点权子集其异或…"
+date: "2023-12-06T14:31:45.000Z"
+category: "题解"
+tags: ["solution"]
+cover: "/images/small-tools.svg"
+coverAlt: "题解文章的简约插画封面"
+featured: false
+draft: false
+sourceUrl: "https://www.luogu.com.cn/article/wt96drrt"
+sourceCategory: "题解"
+sourceSha256: "09d55cb7db5b285024b269969fe82628703d92a42f2515417f39457426bf989c"
+---
+## 前言
+
+本题是简单的、一眼的、普通的、显然的。
+
+## 正文
+
+### 0x00 分析题目
+
+> 给定一颗带点权无根树，每次询问给定两个点 $u,v$ 和参数 $k$，回答是否有一个 $u\leftarrow v$ 简单路径的点权子集其异或和是 $k$。
+> $n,q\leq 2\times 10^5$ 时间限制为 $6.5$ 秒。
+
+可以肯定的是这个题需要线性基，以及线性基合并等知识，不会的推荐[线性基学习笔记 | Menci's OI Blog](https://oi.men.ci/linear-basis-notes/)。下文默认 $n,q$ 同阶。
+
+### 0x01 树上倍增 $\mathcal{O}\left(n\log^3{n}\right)$
+
+#### 做法
+
+首先考虑到一个显然的做法，树上倍增，对于每个 $u$ 处理出 $B_{u,k}$ 表示 $u$ 到其 $2^k$ 级祖先这条链的线性基，和普通树上倍增一样只不过合并两个 $2^{k-1}$ 的信息时用线性基合并，则预处理时间复杂度 $\mathcal{O}\left(n\log^3{n}\right)$。
+
+询问时，$u,v$ 不断向上倍增跳，直到其 $lca$ 的位置，这样一共需要合并 $\mathcal{O}\left(\log{n}\right)$ 个线性基，单次询问时间复杂度 $\mathcal{O}\left(\log^3{n}\right)$。
+
+#### 代码实现
+
+实测使用一定的常数优化可以轻松通过：
+
+1. 线性基插入一个数 $x$ 时从 $\log_2 x$ 位开始枚举，每次插入后重新取 $\log_2 x$ 寻找下一位。
+2. 树上倍增时从 $\log dep$ 开始倍增。
+3. 取 $\log_2 x$ 使用 `31^__builtin_clz(x)` 计算最快。
+
+[AC CODE](https://codeforces.com/problemset/submission/1902/235700039)，最大点跑了 $6114 ms$。
+
+
+### 0x02 点分治做法 $\mathcal{O}\left(n\log^2{n}\right)$
+
+#### 做法
+
+观察发现树上倍增做法之所以慢是应为我们钦定了两个点在他们的 $lca$ 处相遇然后合并线性基，所以需要预处理和查询很多东西。但是对于这个这个题他是无根树，不需要一定在 $lca$ 处才能算。这启发我们使用点分治来处理树上询问。
+
+具体的，对于每次点分治，处理跨越当前子树重心的所有询问。对于每个子树的点 $u$ 处理出其到重心链上的线性基，这一部分不需要线性基合并，只需要直接继承他父亲的线性基然后加入 $u$ 的点权即可。处理查询时合并以 $u$ 到重心的线性基和 $v$ 到重心的线性基即可。单次查询时间复杂度 $\mathcal{O}\left(\log^2{n}\right)$，点分治的时间复杂度 $\mathcal{O}\left(n\log^2{n}\right)$。
+
+思考，点分治的好处是每次查询只需要合并两个线性基，并且预处理不需要合并线性基所以可以得到更优的时间复杂度。
+
+#### 代码实现
+
+加上前面的优化甚至可以跑进一秒，[AC CODE](https://codeforces.com/problemset/submission/1902/235707047)。
+
+
+## 总结
+
+本题利用了点分治对询问优秀的拆分方式解决了本题。

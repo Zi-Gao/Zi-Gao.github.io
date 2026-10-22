@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { getPosts, postUrl, formatDate } from '../lib/posts';
+const posts = await getPosts();
+const years = [...new Set(posts.map((post) => post.data.date.getUTCFullYear()))];
+---
+<BaseLayout title="文章归档">
+  <div class="container page-content"><header class="page-heading"><p class="eyebrow">A TIMELINE OF THOUGHTS</p><h1>一路写来<span class="heading-period">.</span></h1><p>时间向前，文字留下。这里收藏了 {posts.length} 个小小的切片。</p></header><div class="archive">{years.map((year) => <section class="archive-year"><div class="archive-year-label"><h2>{year}</h2><span>{posts.filter((post) => post.data.date.getUTCFullYear() === year).length} 篇文章</span></div><div class="archive-posts">{posts.filter((post) => post.data.date.getUTCFullYear() === year).map((post) => <a class="archive-row" href={postUrl(post)}><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date).slice(5)}</time><h3>{post.data.title}</h3><span class="archive-category">{post.data.category}</span><Icon name="arrow-up" size={18} /></a>)}</div></section>)}</div></div>
+</BaseLayout>

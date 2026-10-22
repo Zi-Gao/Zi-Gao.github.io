@@ -1,0 +1,168 @@
+---
+title: "P9755 [CSP-S 2023] 种树 卡常题解"
+slug: "d9nk45db"
+description: "前言 赛时没过，赛后乱糊！这个做法本来过了洛谷数据的，但是 CCF 数据太强了，竟然只有 40pts？？？ 而且这个做法有点卡常，需要修改一下，还是能跑过。 正文 0x00 分析题目 第一眼看着这个题…"
+date: "2023-10-29T13:32:13.000Z"
+category: "题解"
+tags: ["solution"]
+cover: "/images/digital-home.svg"
+coverAlt: "题解文章的简约插画封面"
+featured: false
+draft: false
+sourceUrl: "https://www.luogu.com.cn/article/d9nk45db"
+sourceCategory: "题解"
+sourceSha256: "cb95c06c8c0645a717477dc8c87f48a59c3a2f727d9fcc7cd7f2854c76e18072"
+---
+## 前言
+
+赛时没过，赛后乱糊！这个做法本来过了洛谷数据的，但是 CCF 数据太强了，竟然只有 40pts？？？
+
+而且这个做法有点卡常，需要修改一下，还是能跑过。
+
+## 正文
+
+### 0x00 分析题目
+
+第一眼看着这个题肯定是想要贪心去搞，但是发现不同时间种下一棵树，由于题目中的计算方式，最后需要的长高的时间并不一样的，所以肯定不能普通地贪心。既然不好确定开始时间，那就考虑确定结束时间。观察到答案具有单调性，考虑二分答案，这样确定了一个生长的结束时间后，很容发现开始时间需要满足的条件很简单，小于等于某个时间点即可。考虑对于每个节点 $u$ 把这个东西算出来，记作 $t_u$。现在就可以进行贪心了。
+
+考虑从根节点开始向下扩散，选择点种树，具体来说维护一个以 $t_u$ 为关键字的小根堆，每次选择小根对顶部点 $u$ 进行种树，看当前时刻是否小于等于 $t_u$，然后遍历其儿子 $v$，把 $v$ 放入小根堆。这样就能保证种某一颗树时，其祖先全部种上了树。但是直接这样做并不对，因为一个点的 $t_u$ 可能看起来很大，但是其子树内可能有个点的 $t_v$ 很小，所以需要把 $t_u$ 处理一下：
+
+$$t_u=\min_{v\in tree_u} t_v$$
+
+变成子树内最小的值，即可。
+
+### 0x01 代码实现
+
+记 $F_{s,t,u}$ 表示 $u$ 这个树在 $\left[s,t\right]$ 这段时间内生长高度，那么有：
+
+$$F_{s,t,u}=\sum_{i=s}^{t}\min\left(b_i+c_i\times i,1\right)$$
+
+当 $\forall i\in\left[s,t\right],b_i+c_i\times i\geq 1$ 时：
+
+$$F_{s,t,u}=\frac{\left(s+t\right)\left(t-s+1\right)c_u}{2}+\left(t-s+1\right)b_u$$
+
+其他情况下，不妨算出 $p_u$ 使得 $i=p_i,b_i+c_i\times i\lt 1$，显然：
+
+$$p_u=\lfloor\frac{b_u-1}{-c_u}\rfloor$$
+
+$$F_{s,t,u}=F_{s,p_u,u}+t-p_u+1$$
+
+对于求出 $t_u$，不想推式子的话二分就好了，用 $F_{s,t,u}$ 去 check。
+
+发现 $F_{s,t,u}$ 会超过 $2^{64}$，但是不会超过 $2^{128}$，可以选择用 int128 记录，但是这样会被卡常。然后可以发现长得太高没有用于是可以算出个 int128 然后和 $1e18$ 取 $\min$ 即可。
+
+AC CODE
+```cpp
+#include<bits/stdc++.h>
+// #define ONLINE_JUDGE
+#define INPUT_DATA_TYPE long long
+#define OUTPUT_DATA_TYPE long long
+INPUT_DATA_TYPE read(){register INPUT_DATA_TYPE x=0;register char f=0,c=getchar();while(c<'0'||'9'<c)f=(c=='-'),c=getchar();while('0'<=c&&c<='9')x=(x<<3)+(x<<1)+(c&15),c=getchar();return f?-x:x;}void print(OUTPUT_DATA_TYPE x){if(x<0)x=-x,putchar('-');if(x>9)print(x/10);putchar(x%10^48);return;}
+
+std::vector<int> e[100010];
+
+void addEdge(int u,int v){
+	e[u].push_back(v);
+	return;
+}
+
+int n;
+long long a[100010],b[100010],c[100010],tim[100010],p[100010];
+std::bitset<100010> vis;
+
+struct NODE{
+	long long w;
+	int u;
+	bool operator < (const NODE o) const{
+		return w>o.w;
+	}
+};
+
+std::priority_queue<NODE> Q;
+
+long long abss(long long x){return x<0?-x:x;}
+long long floor_(long long a,long long b);
+long long ceil_(long long a,long long b){
+    if(a>=0&&b>=0) return (a+b-1)/b;
+    else if(a<0&&b<0) return ((-a)+(-b)-1)/(-b);
+    else return -floor_(abss(a),abss(b));
+}
+long long floor_(long long a,long long b){
+    if(a>=0&&b>=0) return a/b;
+    else if(a<0&&b<0) return (-a)/(-b);
+    else return -ceil_(abss(a),abss(b));
+}
+
+long long getH(long long start,long long end,int u){
+	if(start>end) return 0;
+	if(c[u]<0&&p[u]+1<=end) return std::min((__int128_t)std::max(end-std::max(p[u]+1,start)+1,0ll)+(__int128_t)getH(start,p[u],u),(__int128_t)0x3f3f3f3f3f3f3f3fll);
+	return std::min((__int128_t)(start+end)*(__int128_t)(end-start+1)/2*(__int128_t)c[u]+(__int128_t)b[u]*(__int128_t)(end-start+1),(__int128_t)0x3f3f3f3f3f3f3f3fll);
+}
+
+long long calc(long long end,int u){
+	register long long l=1,r=end,mid;
+	while(l<r){
+		mid=(l+r)>>1;
+		if(getH(mid,end,u)>=a[u]) l=mid+1;
+		else r=mid;
+	}
+	return l;
+}
+
+void getPri(int u,int p){
+    for(auto v:e[u])
+        if(v!=p)
+            getPri(v,u),tim[u]=std::min(tim[u],tim[v]);
+    return;
+}
+
+bool solve(long long ans){
+	register int i,u,v;
+	register long long now=1;
+	for(i=1;i<=n;++i) tim[i]=calc(ans,i),vis[i]=0;
+	for(i=1;i<=n;++i) if(getH(tim[i]-1,ans,i)<a[i]||tim[i]==1) return false;
+    getPri(1,1);
+	while(!Q.empty()) Q.pop();
+	Q.push((NODE){0,1});
+	while(!Q.empty()){
+		u=Q.top().u,Q.pop();
+		if(vis[u]) continue;
+		vis[u]=1;
+		if(now>=tim[u]) return false;
+		for(auto v:e[u])
+			if(!vis[v])
+				Q.push((NODE){tim[v],v});
+		++now;
+	}
+	return true;
+}
+
+int main(){
+	register int i,flg=0,u,v;
+	register long long l,r=1000000010ll,mid;
+	n=read();
+	for(i=1;i<=n;++i){
+		a[i]=read();
+		b[i]=read();
+		c[i]=read();
+		flg|=c[i];
+		if(c[i]<0) p[i]=((b[i]-1)/(-c[i]));
+	}
+	for(i=1;i<n;++i){
+		u=read();
+		v=read();
+		addEdge(u,v);
+		addEdge(v,u);
+	}
+
+	l=0;
+	while(l<r){
+		mid=(l+r)>>1;
+		if(solve(mid)) r=mid;
+		else l=mid+1;
+	}
+	print(l);
+
+    return 0;
+}
+```

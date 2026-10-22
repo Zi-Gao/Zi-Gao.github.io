@@ -1,0 +1,37 @@
+---
+import { site } from '../site.config';
+interface Props { counts: Record<string, number>; }
+const { counts } = Astro.props;
+---
+<div class="post-filters" role="group" aria-label="按分类筛选文章">
+  {['全部', ...site.categories].map((category) => <button class:list={['filter-button', { selected: category === '全部' }]} data-filter={category} aria-pressed={category === '全部'}>{category}<span>{counts[category] || 0}</span></button>)}
+</div>
+<script>
+  const filters = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-post-card]')];
+  const empty = document.querySelector<HTMLElement>('[data-filter-empty]');
+  function selectCategory(category: string, updateUrl = false) {
+    if (!filters.some((button) => button.dataset.filter === category)) category = '全部';
+    filters.forEach((button) => {
+      const active = button.dataset.filter === category;
+      button.classList.toggle('selected', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    let visible = 0;
+    cards.forEach((card) => {
+      card.hidden = category !== '全部' && card.dataset.category !== category;
+      if (!card.hidden) visible++;
+    });
+    if (empty) empty.hidden = visible !== 0;
+    const status = document.querySelector('[data-filter-status]');
+    if (status) status.textContent = `${category}，共 ${visible} 篇文章`;
+    if (updateUrl) {
+      const url = new URL(window.location.href);
+      if (category === '全部') url.searchParams.delete('category'); else url.searchParams.set('category', category);
+      window.history.pushState({}, '', url);
+    }
+  }
+  filters.forEach((button) => button.addEventListener('click', () => selectCategory(button.dataset.filter || '全部', true)));
+  selectCategory(new URLSearchParams(window.location.search).get('category') || '全部');
+  window.addEventListener('popstate', () => selectCategory(new URLSearchParams(window.location.search).get('category') || '全部'));
+</script>
