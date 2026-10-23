@@ -1,5 +1,5 @@
 export const site = {
-  title: '留白',
+  title: "Zachary's Mindscape",
   tagline: 'Comprehension is compression.',
   description: 'Comprehension is compression. — Zi_Gao 的算法题解、学习笔记与生活游记。',
   author: 'Zi_Gao',

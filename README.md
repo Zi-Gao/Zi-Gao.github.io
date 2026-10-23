@@ -1,4 +1,4 @@
-# Zi_Gao's Blog
+# Zachary's Mindscape
 
 **Comprehension is compression.**
 
