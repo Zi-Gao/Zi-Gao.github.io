@@ -9,4 +9,4 @@ export async function getStaticPaths() {
 }
 const { tag, posts } = Astro.props;
 ---
-<BaseLayout title={`# ${tag}`}><div class="container page-content"><header class="page-heading"><a class="back-link" href="/blog/">← 所有文章</a><p class="eyebrow">THOUGHTS ON A TOPIC</p><h1><span class="tag-hash">#</span> {tag}<span class="heading-period">.</span></h1><p>在这个话题下，收集了 {posts.length} 篇记录。</p></header><div class="post-grid">{posts.map((post) => <PostCard post={post} />)}</div><a class="text-link tag-back" href="/blog/">探索更多文章 <Icon name="arrow" size={16} /></a></div></BaseLayout>
+<BaseLayout title={`# ${tag}`}><div class="container page-content"><header class="page-heading"><a class="back-link" href="/">← 所有文章</a><h1><span class="tag-hash">#</span> {tag}</h1><p>在这个话题下，收集了 {posts.length} 篇记录。</p></header><div class="post-grid">{posts.map((post) => <PostCard post={post} />)}</div><a class="text-link tag-back" href="/">探索更多文章 <Icon name="arrow" size={16} /></a></div></BaseLayout>

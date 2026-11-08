@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getPosts } from '../../lib/posts';
+import { site } from '../../site.config';
+
+export function getStaticPaths() {
+  return site.categories.map((category) => ({ params: { category } }));
+}
+const { category } = Astro.params;
+const posts = (await getPosts()).filter((post) => post.data.category === category);
+---
+<BaseLayout title={category}>
+  <div class="container home-content">
+    <a class="back-link" href="/">← 回到首页</a>
+    <header class="home-heading"><h1>{category}</h1><span class="post-count">共 {posts.length} 篇文章</span></header>
+    <div class="post-grid home-post-grid">{posts.map((post) => <PostCard post={post} />)}</div>
+    {posts.length === 0 && <p class="empty-state">这个分类还没有文章。</p>}
+  </div>
+</BaseLayout>

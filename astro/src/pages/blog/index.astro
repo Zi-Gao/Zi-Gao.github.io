@@ -1,11 +1,17 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import PostCard from '../../components/PostCard.astro';
-import PostFilter from '../../components/PostFilter.astro';
-import { getPosts, getCategoryCounts } from '../../lib/posts';
-const posts = await getPosts();
-const counts = getCategoryCounts(posts);
+const canonical = new URL('/', Astro.site);
 ---
-<BaseLayout title="所有文章">
-  <div class="container page-content"><header class="page-heading"><p class="eyebrow">THE JOURNAL</p><h1>文字的集合<span class="heading-period">.</span></h1><p>算法题解、学习笔记，以及比赛内外的日常。<span class="post-count">共 {posts.length} 篇记录</span></p></header><PostFilter counts={counts} /><p class="sr-only" data-filter-status aria-live="polite"></p><div class="post-grid">{posts.map((post) => <PostCard post={post} />)}</div><p class="empty-state" data-filter-empty hidden>这个分类还没有文章，新的故事正在路上。</p></div>
-</BaseLayout>
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={canonical} />
+    <title>文章列表已移至首页</title>
+    <script is:inline>
+      window.location.replace('/' + window.location.search + window.location.hash);
+    </script>
+    <noscript><meta http-equiv="refresh" content="0;url=/" /></noscript>
+  </head>
+  <body><p>文章列表已移至<a href="/">首页</a>。</p></body>
+</html>

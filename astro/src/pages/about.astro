@@ -1,8 +1,0 @@
----
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Icon from '../components/Icon.astro';
-import { site } from '../site.config';
----
-<BaseLayout title={`关于 ${site.title}`}>
-  <div class="container page-content about-page"><header class="page-heading"><p class="eyebrow">A LITTLE ABOUT THIS SPACE</p><h1>你好，我是 {site.author}<span class="heading-period">.</span></h1><p>这里收藏我的算法题解、学习笔记，以及比赛与生活的记录。</p></header><div class="about-grid"><div class="about-art"><img src="/images/quiet-space.svg" alt="暖白色空间里，阳光照在拱门与小树上" width="720" height="480" /><span>COMPREHENSION IS COMPRESSION.</span></div><div class="about-copy"><p class="eyebrow">A WAY OF THINKING</p><h2>Comprehension<br />is compression.</h2><p>理解，是把纷繁的细节收束为清晰的结构。从一道题的解法，到一个算法的证明，再到一篇文章，记录也是整理思考的过程。</p><p>这里收录了我在洛谷发布的题解、笔记和游记。迁移时保留了原始文字与发布时间，也保留了那些还不够成熟、却真实发生过的思考。</p><p>题解之外，也有集训、比赛和旅途中的片段。把复杂想明白，也把日常记下来。</p><a class="text-link" href="/blog/">从一篇文章开始 <Icon name="arrow" size={18} /></a></div></div><div class="about-interests"><p class="eyebrow">THINGS YOU’LL FIND HERE</p><div>{site.categories.map((category, index) => <a href={`/blog/?category=${encodeURIComponent(category)}`}><span>0{index + 1}</span><h3>{category}</h3><p>{site.categoryDescriptions[category]}</p><Icon name="arrow-up" size={19} /></a>)}</div></div></div>
-</BaseLayout>

@@ -21,6 +21,13 @@ npm run build    # 生成 dist/ 静态站点
 npm run preview  # 预览构建结果
 ```
 
+## 页面分工
+
+- `/`：完整的单列文章流，不显示分类筛选栏。
+- `/categories/<分类>/`：点击文章分类后查看该分类的文章。
+- `/archive/`：按年份排列的紧凑时间索引。
+- `/blog/`：兼容旧列表链接，跳转至首页，带分类参数的旧链接继续进入对应分类页。文章详情地址不变。
+
 ## 同步洛谷归档
 
 ```bash
@@ -68,7 +75,7 @@ draft: false
 
 - 名称、作者、标语与分类：`src/site.config.ts`。
 - 主题颜色与排版：`src/styles/global.css` 的 `:root` 变量。
-- 首页与作者介绍：`src/pages/index.astro`、`src/pages/about.astro`。
+- 首页：`src/pages/index.astro`。
 - 社交分享图片：`public/images/og.svg` 与导出的 `og.png`。
 - 正式域名：`astro.config.mjs`，也可通过 `SITE_URL` 环境变量覆盖。
 
