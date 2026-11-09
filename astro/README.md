@@ -92,3 +92,15 @@ npm run deploy
 `npm run deploy` 会先构建，然后使用项目内固定版本的 Wrangler 部署。自定义域名需要在 Cloudflare Pages 的 Custom domains 中绑定 `www.zigao.ac`。
 
 RSS：`/rss.xml`；站点地图：`/sitemap-index.xml`。`public/_headers` 配置了静态资源缓存与基本响应头。
+
+## GitHub Actions 自动发布
+
+推送到 `main` 后，`.github/workflows/deploy.yml` 使用 Node.js 24 检查并构建一次，再分别发布到 GitHub Pages 和 Cloudflare Pages。也可在 Actions 页面手动运行；只有 `main` 分支会执行发布。
+
+首次配置：
+
+1. 在 GitHub 仓库的 **Settings → Pages** 中，将 **Source** 设置为 **GitHub Actions**。根站点仓库名须为 `<用户名>.github.io`。
+2. 在 **Settings → Secrets and variables → Actions** 中添加仓库 Secrets：`CLOUDFLARE_ACCOUNT_ID` 和 `CLOUDFLARE_API_TOKEN`。令牌需具有目标账户的 Cloudflare Pages 编辑权限；不要将令牌写入仓库。
+3. Cloudflare Pages 项目为 `zigao-blog`，生产分支为 `main`。工作流通过 Wrangler 直接上传构建结果。已有的自定义域名继续在 Cloudflare Pages 管理。
+
+两处部署使用相同的根路径构建产物；站点的 canonical、RSS 和站点地图仍以 `https://www.zigao.ac` 为正式地址。
