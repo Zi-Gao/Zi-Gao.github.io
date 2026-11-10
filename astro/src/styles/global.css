@@ -243,7 +243,6 @@ kbd { font-family: var(--sans); font-size: 10px; line-height: 1.4; color: #7a859
 .prose .katex-display { overflow-x: auto; overflow-y: hidden; padding: 8px 0; max-width: 100%; }
 .prose .katex-display > .katex { white-space: nowrap; }
 .prose .katex .base { white-space: nowrap; }
-.article-note a { color: #425f78; text-decoration: underline; text-underline-offset: 3px; }
 .article-toc { position: sticky; top: 42px; border-left: 1px solid var(--line); padding: 5px 0 5px 23px; }
 .article-toc > .eyebrow { font-size: 8px; color: #89949f; }
 .article-toc h2 { font-size: 12px; font-weight: 550; margin: 8px 0 18px; }
@@ -258,7 +257,6 @@ kbd { font-family: var(--sans); font-size: 10px; line-height: 1.4; color: #7a859
 .article-tags { display: flex; justify-content: center; gap: 9px; flex-wrap: wrap; margin-top: 24px; }
 .article-tags a { background: #f1f4f7; color: #667987; font-size: 10px; padding: 6px 11px; border-radius: 4px; }
 .article-tags a:hover { color: var(--accent); }
-.article-note { display: flex; gap: 13px; align-items: center; padding: 19px 21px; background: #f7f9fb; border: 1px solid var(--line); border-radius: 6px; font-size: 11px; color: #7a8591; line-height: 1.8; }
 .related-section { margin-top: 72px; border-top: 1px solid var(--line); padding-top: 39px; }
 .related-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 840px; }
 .related-grid .post-image { aspect-ratio: 1.85; }
@@ -446,7 +444,6 @@ kbd { font-family: var(--sans); font-size: 10px; line-height: 1.4; color: #7a859
   .prose pre { padding: 25px 16px 20px; }
   .prose pre code { font-size: 10px; }
   .article-end { padding-top: 35px; }
-  .article-note { padding: 16px; font-size: 10px; }
   .related-section { margin-top: 45px; padding-top: 29px; }
   .related-grid { grid-template-columns: 1fr; }
   .search-dialog { top: 10vh; }
@@ -550,7 +547,6 @@ kbd { font-family: var(--sans); font-size: 10px; line-height: 1.4; color: #7a859
 @media (min-width: 1240px) {
   .article-toc { display: block; position: absolute; top: 0; left: calc(100% + 40px); width: 160px; padding-left: 20px; }
 }
-.article-note { background: transparent; border-inline: 0; border-radius: 0; padding-inline: 0; font-size: 12px; }
 .related-section { max-width: var(--reading-width); }
 .section-heading h2 { font-size: 20px; font-weight: 500; }
 .related-grid { grid-template-columns: 1fr; }
