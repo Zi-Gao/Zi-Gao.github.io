@@ -241,7 +241,9 @@ kbd { font-family: var(--sans); font-size: 10px; line-height: 1.4; color: #7a859
 .prose img { border-radius: 7px; margin: 2em auto; height: auto; }
 .prose .katex { font-size: 1.05em; }
 .prose .katex-display { overflow-x: auto; overflow-y: hidden; padding: 8px 0; max-width: 100%; }
-.prose .katex-display > .katex { white-space: nowrap; }
+.prose .katex-display > .katex { min-width: max-content; white-space: nowrap; }
+/* KaTeX's equation-number spacer extends 2px beyond its negative margin. */
+.prose .katex-display:not(.leqno) > .katex > .katex-html > .katex-tag { right: 2px; }
 .prose .katex .base { white-space: nowrap; }
 .article-toc { position: sticky; top: 42px; border-left: 1px solid var(--line); padding: 5px 0 5px 23px; }
 .article-toc > .eyebrow { font-size: 8px; color: #89949f; }
