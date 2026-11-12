@@ -577,16 +577,3 @@ kbd { font-family: var(--sans); font-size: 10px; line-height: 1.4; color: #7a859
   .article-author { margin-bottom: 32px; }
 }
 
-/* A quiet, cool dot field behind the reading surface. */
-body { position: relative; isolation: isolate; }
-.dot-ocean {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  pointer-events: none;
-}
-@media (forced-colors: active) {
-  .dot-ocean { display: none; }
-}
