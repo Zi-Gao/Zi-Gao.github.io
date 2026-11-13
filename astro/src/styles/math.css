@@ -1,0 +1,32 @@
+/* Functional math layout: preserve these rules when changing the visual theme. */
+.prose .katex-display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Keep the start of a genuinely wide formula reachable when scrolling. */
+.prose .katex-display > .katex {
+  min-width: max-content;
+}
+
+/* Reserve real space for right-hand numbers instead of overlaying the formula.
+   Equal flexible spacers keep the expression centered in the remaining space. */
+.prose .katex-display:not(.leqno) > .katex > .katex-html:has(> .katex-tag) {
+  display: flex;
+  align-items: baseline;
+}
+
+.prose .katex-display:not(.leqno) > .katex > .katex-html:has(> .katex-tag)::before,
+.prose .katex-display:not(.leqno) > .katex > .katex-html:has(> .katex-tag)::after {
+  content: '';
+  flex: 1 0 0;
+}
+
+.prose .katex-display:not(.leqno) > .katex > .katex-html > .katex-tag {
+  position: static;
+  order: 1;
+  padding-left: .5em;
+  /* KaTeX's number spacer protrudes 2px beyond its negative margin. */
+  padding-right: 2px;
+}

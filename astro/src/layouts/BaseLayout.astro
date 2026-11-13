@@ -5,6 +5,7 @@ import Search from '../components/Search.astro';
 import { site } from '../site.config';
 import '../styles/global.css';
 import 'katex/dist/katex.min.css';
+import '../styles/math.css';
 interface Props { title?: string; description?: string; image?: string; type?: 'website' | 'article'; noindex?: boolean; }
 const { title, description = site.description, image = '/images/og.png', type = 'website', noindex = false } = Astro.props;
 const socialImage = image.endsWith('.svg') ? '/images/og.png' : image;

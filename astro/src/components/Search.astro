@@ -17,6 +17,12 @@ import Icon from './Icon.astro';
   const openSearch = () => { dialog?.showModal(); input?.focus(); };
   document.querySelectorAll('[data-search-open]').forEach((button) => button.addEventListener('click', openSearch));
   document.querySelector('[data-search-close]')?.addEventListener('click', () => dialog?.close());
+  dialog?.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      dialog.close();
+    }
+  });
   dialog?.addEventListener('click', (event) => {
     const box = dialog.getBoundingClientRect();
     if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) dialog.close();
@@ -59,10 +65,10 @@ import Icon from './Icon.astro';
         const link = document.createElement('a');
         link.href = post.url;
         link.className = 'search-result';
-        const category = document.createElement('span'); category.className = 'eyebrow'; category.textContent = post.category;
+        const category = document.createElement('span'); category.className = 'search-result-category'; category.textContent = post.category;
         const title = document.createElement('strong'); title.textContent = post.title;
         const description = document.createElement('p'); description.textContent = post.description;
-        link.append(category, title, description); results.append(link);
+        link.append(title, category, description); results.append(link);
       });
     } catch {
       if (version === searchVersion) results.innerHTML = '<p class="search-hint">搜索暂时不可用，请稍后再试。</p>';
