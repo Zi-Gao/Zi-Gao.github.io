@@ -5,6 +5,7 @@ import { unified } from '@astrojs/markdown-remark';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import remarkLuoguMath from './scripts/remark-luogu-math.mjs';
+import codeBlocks from './scripts/shiki-code-blocks.mjs';
 
 const env = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), 'SITE_');
 
@@ -19,7 +20,7 @@ export default defineConfig({
       rehypePlugins: [[rehypeKatex, { strict: false, throwOnError: false }]],
       smartypants: false,
     }),
-    shikiConfig: { theme: 'github-light', wrap: true, langAlias: { AC: 'cpp' } },
+    shikiConfig: { theme: 'github-light-default', wrap: false, langAlias: { AC: 'cpp' }, transformers: [codeBlocks] },
   },
   devToolbar: { enabled: false },
 });

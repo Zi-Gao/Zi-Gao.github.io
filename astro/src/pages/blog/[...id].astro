@@ -29,6 +29,13 @@ const structuredData = {
 <BaseLayout title={post.data.title} description={post.data.description} image={post.data.cover} type="article">
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\u003c')} />
   <div class="reading-progress" aria-hidden="true"></div>
+  <template data-code-copy-template>
+    <button type="button" class="code-copy" aria-label="复制代码">
+      <Icon name="copy" size={14} class="code-copy-icon" />
+      <Icon name="check" size={14} class="code-copy-check" />
+      <span data-code-copy-label aria-live="polite" aria-atomic="true">复制代码</span>
+    </button>
+  </template>
   <article class="container article-page">
     <header class="article-header"><a class="back-link" href="/">← 回到所有文章</a><div class="post-meta"><a href={`/categories/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a><span class="meta-separator">/</span><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time><span class="meta-separator">/</span><span>{readingTime(post.body)} 分钟阅读</span></div><h1>{post.data.title}</h1><div class="article-author"><span>{site.author}</span><button class="share-button" data-share><Icon name="link" size={17} /><span>复制链接</span></button></div><span class="sr-only" data-share-status aria-live="polite"></span></header>
     <div class="article-layout"><div><div class="prose"><Content /></div><div class="article-end"><div class="article-tags">{post.data.tags.map((tag) => <a href={`/tags/${encodeURIComponent(tag)}/`}># {tag}</a>)}</div></div></div>{toc.length > 0 && <aside class="article-toc" aria-label="文章目录"><h2>目录</h2><nav>{toc.map((heading) => <a href={`#${heading.slug}`} class:list={{ nested: heading.depth === 3 }} data-toc-link>{heading.text}</a>)}</nav><a class="toc-top" href="#main">回到顶部 ↑</a></aside>}</div>
@@ -51,19 +58,37 @@ const structuredData = {
     }
   });
 
-  document.querySelectorAll<HTMLElement>('.prose pre').forEach((pre) => {
-    const code = pre.querySelector('code');
-    if (!code) return;
-    const button = document.createElement('button');
-    button.className = 'code-copy'; button.textContent = '复制'; button.setAttribute('aria-label', '复制代码');
+  const copyTemplate = document.querySelector<HTMLTemplateElement>('[data-code-copy-template]');
+  document.querySelectorAll<HTMLElement>('.prose .code-block').forEach((block) => {
+    const code = block.querySelector('pre code');
+    const toolbar = block.querySelector('.code-toolbar');
+    const button = copyTemplate?.content.querySelector('button')?.cloneNode(true) as HTMLButtonElement | undefined;
+    if (!code || !toolbar || !button) return;
+    const label = button.querySelector<HTMLElement>('[data-code-copy-label]')!;
+    let resetTimer: number | undefined;
     button.addEventListener('click', async () => {
+      window.clearTimeout(resetTimer);
+      button.disabled = true;
+      button.dataset.state = 'pending';
+      label.textContent = '复制中';
       try {
         await navigator.clipboard.writeText(code.textContent || '');
-        button.textContent = '已复制';
-        window.setTimeout(() => { button.textContent = '复制'; }, 2000);
-      } catch { button.textContent = '请手动复制'; }
+        button.dataset.state = 'copied';
+        label.textContent = '已复制';
+      } catch {
+        button.dataset.state = 'error';
+        label.textContent = '手动复制';
+        button.setAttribute('aria-label', '复制失败，请选中代码后手动复制');
+      } finally {
+        button.disabled = false;
+        resetTimer = window.setTimeout(() => {
+          delete button.dataset.state;
+          label.textContent = '复制代码';
+          button.setAttribute('aria-label', '复制代码');
+        }, 2500);
+      }
     });
-    pre.append(button);
+    toolbar.append(button);
   });
 
   const progress = document.querySelector<HTMLElement>('.reading-progress');
