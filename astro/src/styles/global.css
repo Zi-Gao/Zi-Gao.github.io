@@ -136,6 +136,7 @@ h1, h2, h3, h4, p { margin: 0; }
 .prose h4 { margin: 1.1em 0 .4em; font-size: 18px; }
 .prose h5 { margin: 1.1em 0 .4em; font-size: 16px; }
 .prose h6 { margin: 1.1em 0 .4em; font-size: 14px; }
+.prose :is(h1, h2, h3, h4, h5, h6) { text-decoration-line: underline; text-decoration-color: rgb(145 195 235 / .18); text-decoration-thickness: .28em; text-underline-offset: -.12em; text-decoration-skip-ink: none; }
 .prose :is(h1, h2, h3, h4, h5) + :is(h2, h3, h4, h5, h6) { margin-top: .65em; }
 .prose a { color: var(--accent); text-decoration: underline; }
 .prose a:hover { text-decoration-thickness: 2px; }

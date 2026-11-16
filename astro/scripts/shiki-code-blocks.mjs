@@ -13,14 +13,6 @@ function languageName(language = 'text') {
 
 export default {
   name: 'blog-code-blocks',
-  tokens(lines) {
-    // Keep the theme's comments readable on the tinted code surface.
-    for (const line of lines) {
-      for (const token of line) {
-        if (token.color?.toLowerCase() === '#6e7781') token.color = '#626e7a';
-      }
-    }
-  },
   pre(node) {
     if (node.tagName !== 'pre') return;
     // Let the shared code surface own its background instead of the syntax theme.

@@ -6,6 +6,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import remarkLuoguMath from './scripts/remark-luogu-math.mjs';
 import codeBlocks from './scripts/shiki-code-blocks.mjs';
+import codeTheme from './scripts/code-theme.mjs';
 
 const env = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), 'SITE_');
 
@@ -20,7 +21,7 @@ export default defineConfig({
       rehypePlugins: [[rehypeKatex, { strict: false, throwOnError: false }]],
       smartypants: false,
     }),
-    shikiConfig: { theme: 'github-light-default', wrap: false, langAlias: { AC: 'cpp' }, transformers: [codeBlocks] },
+    shikiConfig: { theme: codeTheme, wrap: false, langAlias: { AC: 'cpp' }, transformers: [codeBlocks] },
   },
   devToolbar: { enabled: false },
 });
